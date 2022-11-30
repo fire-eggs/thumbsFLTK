@@ -478,29 +478,31 @@ Fl_Image_BrowserV::scrollbar_cb(
 //
 
 void
-Fl_Image_BrowserV::set_scrollbar(int X)	// I - New scroll position
+Fl_Image_BrowserV::set_scrollbar(int scrollPos)	// I - New scroll position
 {
 
-  int displayWidth = w() - Fl::box_dw(box());
+  //int maxPos = w() - Fl::box_dw(box()); // horizontal version
+  int maxPos  = h() - Fl::box_dh(box());
   int currentSize = thumbSize();
-  int numColumns = (int)((float)num_items_ / _numLines + 0.5);
+  int numItems = _itemList->count();
+  int numColumns = (int)((float)numItems / _numLines + 0.5);
   
   if (numColumns)
   {
-    if ((numColumns * currentSize) <= displayWidth)
-      X = 0;
-    else if (X > (numColumns * currentSize - displayWidth))
-      X = numColumns * currentSize - displayWidth;
-    else if (X < 0)
-      X = 0;
+    if ((numColumns * currentSize) <= maxPos)
+      scrollPos = 0;
+    else if (scrollPos > (numColumns * currentSize - maxPos))
+      scrollPos = numColumns * currentSize - maxPos;
+    else if (scrollPos < 0)
+      scrollPos = 0;
 
-    scrollbar_.value(X, displayWidth, 0, numColumns * currentSize);
-    scrollbar_.linesize(displayWidth / 2);
+    scrollbar_.value(scrollPos, maxPos, 0, numColumns * currentSize);
+    scrollbar_.linesize(maxPos / 2);
   }
   else
     scrollbar_.value(0, 1, 0, 1);
 
-  if ((numColumns * currentSize) <= displayWidth)
+  if ((numColumns * currentSize) <= maxPos)
     scrollbar_.deactivate();
   else
     scrollbar_.activate();
