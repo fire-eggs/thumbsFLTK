@@ -122,7 +122,7 @@ Fl_Image_BrowserV::Fl_Image_BrowserV(
   scrollbar_.type(FL_VERTICAL);
   scrollbar_.callback(scrollbar_cb, this);
 
-  _numLines = 2; // KBR NOTE *must* be set before resize
+  _numLines = 3; // KBR NOTE *must* be set before resize
   
   resize(X, Y, W, H);
 }
@@ -176,7 +176,7 @@ Fl_Image_BrowserV::draw()
     int row = i / _numLines;
     
     int yoff = row * ts - scrollbar_.value();
-    int xoff = i % _numLines ? ts : 0;
+    int xoff = i % _numLines * ts; // : 0;
     
     if (yoff < -ts || yoff >= H)
       continue;
@@ -199,7 +199,7 @@ Fl_Image_BrowserV::draw()
     if (bg != FL_WHITE) // TODO chosen background color
     {
       fl_color(bg);
-      fl_rectf(X + xoff + 2, Y + yoff + 2, ts - 4, ts+4); // H - 4);
+      fl_rectf(X + xoff + 1, Y + yoff + 1, ts - 4, ts+4); // H - 4);
     }
 
     if (item->thumbnail)
