@@ -1,0 +1,83 @@
+#include <FL/Fl_Native_File_Chooser.H>
+
+#include "Fl_Image_Browser.H"
+
+char *fl_native_file_chooser(const char *message,const char *pat,const char *fname,int relative=0) {
+
+    static char   retname[FL_PATH_MAX];           // Returned filename
+    char *tmpstr = NULL;
+
+    Fl_Native_File_Chooser fnfc; // = new Fl_Native_File_Chooser;
+    fnfc.title(message);
+    fnfc.type(Fl_Native_File_Chooser::BROWSE_FILE);
+    fnfc.filter(pat);
+
+    if (!fname || !*fname)
+        fname = ".";
+
+    fnfc.preset_file( fname ); // !fname || !*fname ? "." : fname);
+
+    // Show native chooser
+    switch ( fnfc.show() ) {
+        case -1:
+            break;  // ERROR
+
+        case  1: 
+            break;  // CANCEL
+
+        default: 
+            tmpstr = (char *)fnfc.filename();
+            break;  // FILE CHOSEN
+    }
+
+    if (tmpstr && relative) {
+        fl_filename_relative(retname, sizeof(retname), (char *)fnfc.filename());
+        return retname;
+    }
+
+    return tmpstr;
+}
+
+#if 0
+void dobtn(Fl_Widget *, void *)
+{
+    char *res = fl_native_file_chooser("Massage","",nullptr);
+}
+#endif
+
+void cb_browser_(Fl_Image_BrowserV* o, void* v) 
+{
+  //((flphoto*)(o->parent()->user_data()))->cb_browser__i(o,v);
+  //puts("Browser callback\n");
+}
+
+Fl_Image_BrowserV *browser_;
+
+int main(int argc, char** argv) {
+
+    fl_register_images();
+    
+    Fl_Double_Window window(50, 50, 500, 750);
+    
+    
+    browser_ = new Fl_Image_BrowserV(10, 10, 400, 600);
+    browser_->box(FL_DOWN_BOX);
+    browser_->color(FL_LIGHT3);
+    browser_->selection_color(FL_SELECTION_COLOR);
+    browser_->labeltype(FL_NORMAL_LABEL);
+    browser_->labelfont(1);
+    browser_->labelsize(14);
+    browser_->labelcolor(FL_FOREGROUND_COLOR);
+    browser_->callback((Fl_Callback*)cb_browser_);
+    browser_->align(FL_ALIGN_TOP_LEFT);
+    browser_->when(FL_WHEN_RELEASE);
+    browser_->end();
+
+	// TODO use chooser to open folder
+    browser_->load("/mnt/brix1/temp/testImages");
+    
+    window.resizable(browser_);
+        
+    window.show();
+    return Fl::run();
+}
