@@ -18,36 +18,17 @@
 //
 
 
-#  include <FL/Fl_Group.H>
-#  include <FL/Fl_Scrollbar.H>
-#  include <FL/Fl_Shared_Image.H>
+#include <FL/Fl_Group.H>
+#include <FL/Fl_Scrollbar.H>
+#include <FL/Fl_Shared_Image.H>
 
+#include "ItemList.h"
 
 class FL_EXPORT Fl_Image_BrowserV : public Fl_Group
 {
-public:
-
-  struct ITEM
-  {
-    char            *filename;
-    char            *thumbname;
-    char            *label;
-    char            *comments;
-    Fl_Shared_Image *image;
-    Fl_Shared_Image *thumbnail;
-    int             changed;
-    int             selected;
-
-    void make_thumbnail();
-    void save_thumbnail(int createit = 0);
-  };
-
 private:
   const static int SBWIDTH = 17;
 
-  ITEM		**items_;
-  int		num_items_;
-  int		alloc_items_;
   int		pushed_;
   int		selected_;
   uchar		textfont_;
@@ -56,16 +37,12 @@ private:
 
   int _numLines; // rows/columns of images
   
-  void		delete_item(int i);
-  ITEM		*insert_item(const char *f, Fl_Shared_Image *img, int i);
-  void		move_item(int from, int to);
   static void	scrollbar_cb(Fl_Widget *w, void *d);
   void		set_scrollbar(int X);
   void		update_scrollbar();
 
-protected:
+  ItemList *_itemList;
 
-  void		draw();
   int thumbSize() 
   { 
       // TODO horizontal version
@@ -77,7 +54,10 @@ protected:
     return W / _numLines;
   } 
   
-  bool outOfRange(int val) { return val < 0 || val >= num_items_; }
+protected:
+
+  void		draw();
+
   
 public:
 
@@ -86,23 +66,22 @@ public:
 
   void		add(const char *filename, Fl_Shared_Image *img = 0);
   void		clear();
-  int		count() const { return num_items_; }
   int		find(const char *filename);
   int		handle(int event);
   void		load(const char *dirname);
-  Fl_Shared_Image *load_item(int i);
   void		make_visible(int i);
-  void		move(int from, int to) { move_item(from, to); make_visible(to); }
+  void		move(int from, int to) { _itemList->move_item(from, to); make_visible(to); }
   void		remove(int i);
   void		resize(int X, int Y, int W, int H);
   void		select(int i);
   int		selected() const { return selected_; }
-  int		selected(int i) { if (i < 0 || i >= num_items_) return 0; else return items_[i]->selected; }
   uchar		textfont() const { return textfont_; }
   void		textfont(uchar f) { textfont_ = f; }
   uchar		textsize() const { return textsize_; }
   void		textsize(uchar f) { textsize_ = f; }
-  ITEM		*value(int i) { if (i < 0 || i >= num_items_) return 0; else return items_[i]; }
+  
+  ItemList::ITEM *value(int i) { return _itemList->get(i); }
+  
 };
 
 

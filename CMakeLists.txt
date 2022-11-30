@@ -9,7 +9,7 @@ add_compile_options( "-Wall" "-fexceptions" "-fopenmp" "-DFLTK_USE_SVG" )
 
 INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR} /home/kevin/fltk )
 
-add_executable( ThumbsVert untitled.cpp Fl_Image_Browser.cxx )
+add_executable( ThumbsVert untitled.cpp Fl_Image_Browser.cxx ItemList.cpp )
 
 find_library(FLTK fltk /home/kevin/fltk/build/lib)
 find_library(FLTK_IMG fltk_images /home/kevin/fltk/build/lib)
