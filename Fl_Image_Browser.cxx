@@ -264,6 +264,7 @@ Fl_Image_BrowserV::handle(int event)	// I - Event
 	  }
 
   	  damage(FL_DAMAGE_SCROLL);
+      take_focus();
 	}
 	return (1);
 
