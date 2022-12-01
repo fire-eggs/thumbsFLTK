@@ -88,7 +88,8 @@ Fl_Image_BrowserV::Fl_Image_BrowserV(
 
 Fl_Image_BrowserV::~Fl_Image_BrowserV()
 {
-  clear();
+  _itemList->clear();
+  // unnecessary widget update cause we're shutting down clear();
   delete _itemList;
 }
 
