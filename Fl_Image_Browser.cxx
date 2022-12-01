@@ -389,8 +389,8 @@ Fl_Image_BrowserV::resize(int X,		// I - X position
 {
   Fl_Widget::resize(X, Y, W, H);
 
-  //scrollbar_.resize(X, Y + H - SBWIDTH, W, SBWIDTH);
-  scrollbar_.resize(X + W - SBWIDTH, Y, SBWIDTH, H);
+  //scrollbar_.resize(X, Y + H - SBWIDTH, W, SBWIDTH);  // horizontal
+  scrollbar_.resize(X + W - SBWIDTH, Y, SBWIDTH, H);    // vertical
 
   update_scrollbar();
 
@@ -422,28 +422,28 @@ Fl_Image_BrowserV::set_scrollbar(int scrollPos)	// I - New scroll position
 {
 
   //int maxPos = w() - Fl::box_dw(box()); // horizontal version
-  int maxPos  = h() - Fl::box_dh(box());
+  int maxPos  = h() - Fl::box_dh(box());  // vertical version
+  
   int currentSize = thumbSize();
   int numItems = _itemList->count();
   //int numMarches = (int)((float)numItems / _numLines + 0.5);
-  int numMarches = (numItems + _numLines - 1) / _numLines; // round up
-    
+  int numMarches = (numItems + _numLines - 1) / _numLines; // round up : # rows or # columns
+  int fullExtent = numMarches * currentSize;
+  
   if (numMarches)
   {
-    if ((numMarches * currentSize) <= maxPos)
+    if (scrollPos < 0 || fullExtent <= maxPos)
       scrollPos = 0;
-    else if (scrollPos > (numMarches * currentSize - maxPos))
-      scrollPos = numMarches * currentSize - maxPos;
-    else if (scrollPos < 0)
-      scrollPos = 0;
+    else if (scrollPos > (fullExtent - maxPos))
+      scrollPos = fullExtent - maxPos;
 
-    scrollbar_.value(scrollPos, maxPos, 0, numMarches * currentSize);
+    scrollbar_.value(scrollPos, maxPos, 0, fullExtent);
     scrollbar_.linesize(maxPos / 2);
   }
   else
-    scrollbar_.value(0, 1, 0, 1);
+    scrollbar_.value(0, 1, 0, 1); // empty
 
-  if ((numMarches * currentSize) <= maxPos)
+  if (fullExtent <= maxPos) // everything fully visible
     scrollbar_.deactivate();
   else
     scrollbar_.activate();
