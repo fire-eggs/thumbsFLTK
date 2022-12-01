@@ -424,24 +424,25 @@ Fl_Image_BrowserV::set_scrollbar(int scrollPos)	// I - New scroll position
   int maxPos  = h() - Fl::box_dh(box());
   int currentSize = thumbSize();
   int numItems = _itemList->count();
-  int numColumns = (int)((float)numItems / _numLines + 0.5);
-  
-  if (numColumns)
+  //int numMarches = (int)((float)numItems / _numLines + 0.5);
+  int numMarches = (numItems + _numLines - 1) / _numLines; // round up
+    
+  if (numMarches)
   {
-    if ((numColumns * currentSize) <= maxPos)
+    if ((numMarches * currentSize) <= maxPos)
       scrollPos = 0;
-    else if (scrollPos > (numColumns * currentSize - maxPos))
-      scrollPos = numColumns * currentSize - maxPos;
+    else if (scrollPos > (numMarches * currentSize - maxPos))
+      scrollPos = numMarches * currentSize - maxPos;
     else if (scrollPos < 0)
       scrollPos = 0;
 
-    scrollbar_.value(scrollPos, maxPos, 0, numColumns * currentSize);
+    scrollbar_.value(scrollPos, maxPos, 0, numMarches * currentSize);
     scrollbar_.linesize(maxPos / 2);
   }
   else
     scrollbar_.value(0, 1, 0, 1);
 
-  if ((numColumns * currentSize) <= maxPos)
+  if ((numMarches * currentSize) <= maxPos)
     scrollbar_.deactivate();
   else
     scrollbar_.activate();
