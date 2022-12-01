@@ -82,6 +82,8 @@ public:
   
   ItemList::ITEM *value(int i) { return _itemList->get(i); }
   
+  void numLines(int val) { if (_numLines == val) return; _numLines = val; resize(x(),y(),w(),h()); }
+  
 };
 
 

@@ -45,13 +45,21 @@ void dobtn(Fl_Widget *, void *)
 }
 #endif
 
+Fl_Image_BrowserV *browser_;
+
 void cb_browser_(Fl_Image_BrowserV* o, void* v) 
 {
   //((flphoto*)(o->parent()->user_data()))->cb_browser__i(o,v);
   //puts("Browser callback\n");
 }
 
-Fl_Image_BrowserV *browser_;
+void cb_numlines(Fl_Widget *o, void *d)
+{
+    Fl_Choice *w = dynamic_cast<Fl_Choice *>(o);
+    int newval = w->value() + 1;
+    browser_->numLines(newval);
+}
+
 
 int main(int argc, char** argv) {
 
@@ -59,8 +67,16 @@ int main(int argc, char** argv) {
     
     Fl_Double_Window window(50, 50, 500, 750);
     
+    Fl_Choice *choice = new Fl_Choice(10, 10, 100, 25, "Num Lines:");
+    choice->add("1");
+    choice->add("2");
+    choice->add("3");
+    choice->add("4");
+    choice->add("5");
+    choice->value(1); // make "2" the default
+    choice->callback(cb_numlines);
     
-    browser_ = new Fl_Image_BrowserV(10, 10, 400, 600);
+    browser_ = new Fl_Image_BrowserV(10, 40, 400, 600);
     browser_->box(FL_DOWN_BOX);
     browser_->color(FL_LIGHT3);
     browser_->selection_color(FL_SELECTION_COLOR);
@@ -71,6 +87,8 @@ int main(int argc, char** argv) {
     browser_->callback((Fl_Callback*)cb_browser_);
     browser_->align(FL_ALIGN_TOP_LEFT);
     browser_->when(FL_WHEN_RELEASE);
+    browser_->numLines(2);
+    
     browser_->end();
 
 	// TODO use chooser to open folder

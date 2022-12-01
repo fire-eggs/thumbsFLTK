@@ -76,7 +76,7 @@ Fl_Image_BrowserV::Fl_Image_BrowserV(
   scrollbar_.type(FL_VERTICAL);
   scrollbar_.callback(scrollbar_cb, this);
 
-  _numLines = 3; // KBR NOTE *must* be set before resize
+  _numLines = 2; // KBR NOTE *must* be set before resize
   
   resize(X, Y, W, H);
 }
