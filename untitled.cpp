@@ -60,6 +60,11 @@ void cb_numlines(Fl_Widget *o, void *d)
     browser_->numLines(newval);
 }
 
+void cb_stack(Fl_Widget *o, void *d)
+{
+    Fl_Check_Button *w = dynamic_cast<Fl_Check_Button*>(o);
+    browser_->setStackMode(w->value() == 1);
+}
 
 int main(int argc, char** argv) {
 
@@ -67,7 +72,7 @@ int main(int argc, char** argv) {
     
     Fl_Double_Window window(50, 50, 500, 750);
     
-    Fl_Choice *choice = new Fl_Choice(10, 10, 100, 25, "Num Lines:");
+    Fl_Choice *choice = new Fl_Choice(100, 10, 100, 25, "Num Lines:");
     choice->add("1");
     choice->add("2");
     choice->add("3");
@@ -75,6 +80,9 @@ int main(int argc, char** argv) {
     choice->add("5");
     choice->value(1); // make "2" the default
     choice->callback(cb_numlines);
+    
+    Fl_Check_Button *stack = new Fl_Check_Button(210, 10, 100, 25, "Stack");
+    stack->callback(cb_stack);
     
     browser_ = new Fl_Image_BrowserV(10, 40, 400, 600);
     browser_->box(FL_DOWN_BOX);

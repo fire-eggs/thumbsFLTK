@@ -36,6 +36,7 @@ private:
   Fl_Scrollbar	scrollbar_;
 
   int _numLines; // rows/columns of images
+  bool _stackMode; // grid or stack
   
   static void	scrollbar_cb(Fl_Widget *w, void *d);
   void		set_scrollbar(int X);
@@ -83,6 +84,7 @@ public:
   ItemList::ITEM *value(int i) { return _itemList->get(i); }
   
   void numLines(int val) { if (_numLines == val) return; _numLines = val; resize(x(),y(),w(),h()); }
+  void setStackMode(bool val) { if (_stackMode == val) return; _stackMode = val; redraw(); }
   
 };
 
