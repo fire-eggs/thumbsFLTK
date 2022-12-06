@@ -20,6 +20,11 @@ public:
 
     void make_thumbnail();
     void save_thumbnail(int createit = 0);
+    
+    int _x;
+    int _y;
+    int _w;
+    int _h;
   };
 
 private:  
@@ -37,7 +42,8 @@ public:
 
   bool outOfRange(int val) { return val < 0 || val >= num_items_; }
 
-  int		find(const char *filename);
+  int find(int x, int y);
+  int find(const char *filename);
   Fl_Shared_Image *load_item(int i);
 
   int		count() const { return num_items_; }

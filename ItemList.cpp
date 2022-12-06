@@ -406,3 +406,17 @@ ItemList::ITEM::save_thumbnail(
     fclose(thumbfile);
   }
 }
+
+int ItemList::find(int x, int y)
+{
+    for (int i=0; i < count(); i++)
+    {
+        ITEM *tem = items_[i];
+        if (x < tem->_x || y < tem->_y)
+            continue;
+        if (x < (tem->_x + tem->_w) &&
+            y < (tem->_y + tem->_h))
+            return i;
+    }
+    return -1;
+}
