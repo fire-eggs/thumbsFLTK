@@ -352,7 +352,8 @@ Fl_Image_BrowserV::handle(int event)	// I - Event
       else if (Fl::event_key() == FL_Right && selected_ < (_itemList->count() - 1))
 	    selected_ ++;
 	  else
-	    break;
+        return 1; // do NOT pass the keystroke to Fl_Group
+	    //break;
 
       if (Fl::event_state() & FL_SHIFT)
       {
