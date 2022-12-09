@@ -37,6 +37,7 @@ private:
 
   int _numLines; // rows/columns of images
   bool _stackMode; // grid or stack
+  int _maxExtent; // furthest end of the thumbnails
   
   static void	scrollbar_cb(Fl_Widget *w, void *d);
   void		set_scrollbar(int X);
@@ -57,8 +58,10 @@ private:
   
 protected:
 
-  void		draw();
-
+  void draw();
+  void drawGrid(int, int, int, int);
+  void drawStack(int, int, int, int);
+  void recalc();
   
 public:
 
@@ -83,8 +86,8 @@ public:
   
   ItemList::ITEM *value(int i) { return _itemList->get(i); }
   
-  void numLines(int val) { if (_numLines == val) return; _numLines = val; resize(x(),y(),w(),h()); }
-  void setStackMode(bool val) { if (_stackMode == val) return; _stackMode = val; redraw(); }
+  void numLines(int val);
+  void setStackMode(bool val);
   
 };
 

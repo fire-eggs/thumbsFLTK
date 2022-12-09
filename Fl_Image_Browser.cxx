@@ -94,6 +94,167 @@ Fl_Image_BrowserV::~Fl_Image_BrowserV()
 }
 
 
+void Fl_Image_BrowserV::drawGrid(int X, int Y, int W, int H)
+{
+  int ts = thumbSize();
+  
+  for (int i = 0; i < _itemList->count(); i ++)
+  {
+    ItemList::ITEM *item = _itemList->get(i);
+
+    if (!item || !item->thumbnail)
+      continue; // TODO label drawing, placeholder drawing
+      
+    int yoff = item->_y - scrollbar_.value();
+            
+//    int row = i / _numLines;
+    
+//    int yoff = row * ts - scrollbar_.value();
+//    int xoff = i % _numLines * ts; // : 0;
+    
+    if (yoff < -ts || yoff >= H)
+      continue;
+
+    Fl_Color bg;
+
+    if (item->selected)
+      bg = item->changed ?
+               fl_color_average(FL_RED, selection_color(), 0.5) :
+               selection_color();
+    else
+      bg = item->changed ? FL_RED : FL_WHITE; // TODO chosen background color?
+    
+//    int ts = thumbSize();
+
+    // TODO drawing double margin horizontally [once on right of image x, once on left of image x+1]
+    // TODO margins setting
+    // selected item is drawn smaller so selection color will show. otherwise, no margin.
+    
+    //int margin = 20; // TODO original margins
+    //int drawsize = item->selected ? ts - margin : ts;
+    //int delta    = item->selected ? 10 : 0;
+    
+    int drawsize = item->selected ?  ts - 10 : ts;
+    int delta = item->selected ? 5 : 0;
+
+    int tW = drawsize;
+    int tH = tW * item->thumbnail->h() / item->thumbnail->w();
+    
+    int xoff = item->_x;
+    
+    if (bg != FL_WHITE) // TODO chosen background color?
+    {
+        fl_color(bg);
+        fl_rectf(X + xoff + 1, Y + yoff + 1, ts - 4, ts+4); // H - 4);
+    }
+    
+    //if (item->thumbnail->h() > item->thumbnail->w())
+    if (item->thumbnail->h() < item->thumbnail->w())
+    {
+        tH = drawsize;
+        tW = tH * item->thumbnail->w() / item->thumbnail->h();
+    }        
+    
+    auto tmpImage = item->thumbnail->copy(tW,tH);
+        
+    // grid mode is centered+cropped: draw anti-proportional then take center(drawsize,drawsize)
+
+    tmpImage->draw(X + xoff + delta, Y+yoff+delta,
+                drawsize, drawsize, (tW - drawsize) / 2, (tH - drawsize) / 2);
+    tmpImage->release();
+
+#if 0 // KBR draw no label      
+    fl_color(fl_contrast(FL_BLACK, bg));
+    fl_font(textfont(), textsize());
+    fl_draw(item->label, X + xoff + 2, Y, ITEMWIDTH - 4, H - 2,
+            (Fl_Align)(FL_ALIGN_INSIDE | FL_ALIGN_BOTTOM |
+	               FL_ALIGN_CLIP | FL_ALIGN_WRAP));
+#endif	               
+  }
+}
+
+void Fl_Image_BrowserV::drawStack(int X, int Y, int W, int H)
+{
+  int ts = thumbSize();
+  
+  for (int i = 0; i < _itemList->count(); i ++)
+  {
+    ItemList::ITEM *item = _itemList->get(i);
+
+    if (!item || !item->thumbnail)
+      continue;
+
+    int xoff = item->_x;
+    int yoff = item->_y - scrollbar_.value();
+    
+//    int row = i / _numLines;
+    
+//    int yoff = row * ts - scrollbar_.value();
+//    int xoff = i % _numLines * ts; // : 0;
+    
+    //if (yoff < -ts || yoff >= H)
+    //  continue;
+    if (yoff >= H)
+      continue;
+
+    Fl_Color bg;
+
+    if (item->selected)
+      bg = item->changed ?
+               fl_color_average(FL_RED, selection_color(), 0.5) :
+               selection_color();
+    else
+      bg = item->changed ? FL_RED : FL_WHITE; // TODO chosen background color?
+    
+        // TODO drawing double margin horizontally [once on right of image x, once on left of image x+1]
+        // TODO margins setting
+        // selected item is drawn smaller so selection color will show. otherwise, no margin.
+        
+        //int margin = 20; // TODO original margins
+        //int drawsize = item->selected ? ts - margin : ts;
+        //int delta    = item->selected ? 10 : 0;
+        
+        int drawsize = item->selected ?  ts - 10 : ts;
+        int delta = item->selected ? 5 : 0;
+
+        int tW = drawsize;
+        int tH = tW * item->thumbnail->h() / item->thumbnail->w();
+
+#if 0        
+        if (i >= _numLines)
+        {
+            ItemList::ITEM *temAbove = _itemList->get(i-_numLines);
+            item->_y = temAbove->_y + temAbove->_h;
+            yoff = item->_y;
+        }
+#endif
+
+        if (bg != FL_WHITE) // TODO chosen background color?
+        {
+            fl_color(bg);
+            fl_rectf(X + xoff, Y + yoff, ts + 2, tH + 2); // H - 4);
+        }
+        
+        auto tmpImage = item->thumbnail->copy(tW,tH);
+        
+        // TODO yoff depends on thumbnails above me
+        tmpImage->draw(X + xoff + delta, Y+yoff+delta, tW, tH);
+        
+        tmpImage->release();
+
+#if 0 // KBR draw no label      
+    fl_color(fl_contrast(FL_BLACK, bg));
+    fl_font(textfont(), textsize());
+    fl_draw(item->label, X + xoff + 2, Y, ITEMWIDTH - 4, H - 2,
+            (Fl_Align)(FL_ALIGN_INSIDE | FL_ALIGN_BOTTOM |
+	               FL_ALIGN_CLIP | FL_ALIGN_WRAP));
+#endif	               
+  }
+    
+}
+
+
+
 //
 // 'Fl_Image_BrowserV::draw()' - Draw the image display widget.
 //
@@ -121,89 +282,11 @@ Fl_Image_BrowserV::draw()
 #ifdef DEBUG
   printf("scrollbar_.value() = %d\n", scrollbar_.value());
 #endif // DEBUG
-    
-  int ts = thumbSize();
-  
-  for (int i = 0; i < _itemList->count(); i ++)
-  {
-    int row = i / _numLines;
-    
-    int yoff = row * ts - scrollbar_.value();
-    int xoff = i % _numLines * ts; // : 0;
-    
-    if (yoff < -ts || yoff >= H)
-      continue;
 
-    ItemList::ITEM *item = _itemList->get(i);
-
-    if (!item)
-      continue;
-
-    Fl_Color bg;
-
-    if (item->selected)
-      bg = item->changed ?
-               fl_color_average(FL_RED, selection_color(), 0.5) :
-               selection_color();
+    if (_stackMode)
+        drawStack(X, Y, W, H);
     else
-      bg = item->changed ? FL_RED : FL_WHITE; // TODO chosen background color?
-    
-    int ts = thumbSize();
-    if (bg != FL_WHITE) // TODO chosen background color
-    {
-      fl_color(bg);
-      fl_rectf(X + xoff + 1, Y + yoff + 1, ts - 4, ts+4); // H - 4);
-    }
-
-    if (item->thumbnail)
-    {
-        
-        
-        // TODO drawing double margin horizontally [once on right of image x, once on left of image x+1]
-        // TODO margins setting
-        // selected item is drawn smaller so selection color will show. otherwise, no margin.
-        
-        //int margin = 20; // TODO original margins
-        //int drawsize = item->selected ? ts - margin : ts;
-        //int delta    = item->selected ? 10 : 0;
-        
-        int drawsize = item->selected ?  ts - 10 : ts;
-        int delta = item->selected ? 5 : 0;
-
-        // TODO grid mode should be centered+cropped: draw anti-proportional then take center(drawsize,drawsize)
-        // Proportional sizing
-        int tW = drawsize;
-        int tH = tW * item->thumbnail->h() / item->thumbnail->w();
-
-        //if (item->thumbnail->h() > item->thumbnail->w())
-        if (item->thumbnail->h() < item->thumbnail->w())
-        {
-            tH = drawsize;
-            tW = tH * item->thumbnail->w() / item->thumbnail->h();
-        }        
-        
-        auto tmpImage = item->thumbnail->copy(tW,tH);
-
-        tmpImage->draw(X + xoff + delta, Y+yoff+delta,
-                       drawsize, drawsize, (tW - drawsize) / 2, (tH - drawsize) / 2);
-#if 0        
-        // Proportional drawing
-        tmpImage->draw(X + xoff + delta + (ts - tmpImage->w())/2, 
-                       Y + yoff + delta + (ts - tmpImage->h())/2);
-        //tmpImage->draw(X + xoff + (_thumbSize - item->thumbnail->w()) / 2, Y);
-//                            Y + (H - textsize() - item->thumbnail->h()) / 2);
-#endif
-        tmpImage->release();
-    }
-
-#if 0 // KBR draw no label      
-    fl_color(fl_contrast(FL_BLACK, bg));
-    fl_font(textfont(), textsize());
-    fl_draw(item->label, X + xoff + 2, Y, ITEMWIDTH - 4, H - 2,
-            (Fl_Align)(FL_ALIGN_INSIDE | FL_ALIGN_BOTTOM |
-	               FL_ALIGN_CLIP | FL_ALIGN_WRAP));
-#endif	               
-  }
+        drawGrid(X, Y, W, H);
 
   fl_pop_clip();
 
@@ -221,53 +304,46 @@ Fl_Image_BrowserV::draw()
 int					// O - 1 if event handled, 0 otherwise
 Fl_Image_BrowserV::handle(int event)	// I - Event
 {
-  int	sel;				// Currently selected item
-  int	X, Y;				// Mouse position
-
-
-  X = Fl::event_x() - x(); // - Fl::box_dx(box());
-  Y = Fl::event_y() - y();
   
-  int ts = thumbSize();
-  if (ts < 1) // KBR early event
-      sel = -1;
-  else
-      sel = (Y + scrollbar_.value()) / ts;
-    //sel = (X + scrollbar_.value()) / ts;
-
-  if (_itemList->outOfRange(sel))
-      sel = -1;
-
   switch (event)
   {
     case FL_PUSH :
-      //  if (Y >= (h() - SBWIDTH))
-	  //break;
-      if (X >= w() - SBWIDTH)
-          break;
-      
-      pushed_ = sel;
+    {
+        // get mouse position
+        int X = Fl::event_x() - x(); // - Fl::box_dx(box());
+        int Y = Fl::event_y() - y();
 
-	if (sel >= 0)
-	{
-	  if (Fl::event_state() & FL_CTRL)
-          _itemList->toggleSelect(sel);
-	  else if (Fl::event_state() & FL_SHIFT)
-	  {
-	    if (selected_ < 0)
-	      selected_ = 0;
-        _itemList->selectRange(sel, selected_);
-	  }
-	  else if (!_itemList->isSelected(sel))
-	  {
-          _itemList->select(sel); // select only said item
-	  }
+        // thumb values don't take scroll position into account
+        Y += scrollbar_.value(); // vertical
+        int sel = _itemList->find(X, Y); // currently selected item
+        
+        if (X >= w() - SBWIDTH)
+            break;
 
-  	  damage(FL_DAMAGE_SCROLL);
-      take_focus();
-	}
-	return (1);
+        pushed_ = sel; // TODO for drag?
 
+        if (sel >= 0)
+        {
+            if (Fl::event_state() & FL_CTRL)
+                _itemList->toggleSelect(sel); // TODO selected_ state?
+            else if (Fl::event_state() & FL_SHIFT)
+            {
+                if (selected_ < 0)
+                    selected_ = 0;
+                _itemList->selectRange(sel, selected_);
+            }
+            else if (!_itemList->isSelected(sel))
+            {
+                _itemList->select(sel); // select only said item
+                selected_ = sel;
+            }
+
+            damage(FL_DAMAGE_SCROLL);
+            take_focus();
+
+        }
+        return (1);
+    }
 /*    
     case FL_DRAG :
         if (X < 0)
@@ -324,7 +400,14 @@ Fl_Image_BrowserV::handle(int event)	// I - Event
         return (1);
 */
 
+/* TODO selection happening on push, why is this necessary? drag-and-release?
     case FL_RELEASE :
+    {
+  int X = Fl::event_x() - x(); // - Fl::box_dx(box());
+  int Y = Fl::event_y() - y();
+
+  int sel = _itemList->find(X, Y); // currently selected item
+        
         if (sel < 0)
         {
             if (!(Fl::event_state() & (FL_CTRL | FL_SHIFT)))
@@ -344,7 +427,8 @@ Fl_Image_BrowserV::handle(int event)	// I - Event
         do_callback();
         clear_changed();
         return (1);
-
+    }
+*/
     case FL_SHORTCUT :
     case FL_KEYDOWN :
       if (Fl::event_key() == FL_Left && selected_ > 0)
@@ -374,7 +458,7 @@ Fl_Image_BrowserV::handle(int event)	// I - Event
         return (1);
   }
 
-  return (Fl_Group::handle(event));
+  return Fl_Group::handle(event);
 }
 
 
@@ -393,7 +477,8 @@ Fl_Image_BrowserV::resize(int X,		// I - X position
   //scrollbar_.resize(X, Y + H - SBWIDTH, W, SBWIDTH);  // horizontal
   scrollbar_.resize(X + W - SBWIDTH, Y, SBWIDTH, H);    // vertical
 
-  update_scrollbar();
+  recalc();
+  //update_scrollbar();
 
   redraw();
 }
@@ -421,15 +506,34 @@ Fl_Image_BrowserV::scrollbar_cb(
 void
 Fl_Image_BrowserV::set_scrollbar(int scrollPos)	// I - New scroll position
 {
-
-  //int maxPos = w() - Fl::box_dw(box()); // horizontal version
-  int maxPos  = h() - Fl::box_dh(box());  // vertical version
+  int numItems = _itemList->count();
   
+  if (numItems < 1)
+  {
+    scrollbar_.value(0, 1, 0, 1); // empty
+    scrollbar_.deactivate();
+    return;
+  }
+  
+  //ItemList::ITEM *lastTem = _itemList->get(numItems-1);
+  
+  //int maxPos = w() - Fl::box_dw(box()); // horizontal version
+  // int fullExtent = lastTem->_x + _lastTem->_w;
+  
+  // Vertical version
+  //int fullExtent = lastTem->_y + lastTem->_h;
+  int fullExtent = _maxExtent;
+  int maxPos  = h() - Fl::box_dh(box());
+  int numMarches = 1;
+    
+/*  
   int currentSize = thumbSize();
   int numItems = _itemList->count();
   //int numMarches = (int)((float)numItems / _numLines + 0.5);
   int numMarches = (numItems + _numLines - 1) / _numLines; // round up : # rows or # columns
   int fullExtent = numMarches * currentSize;
+*/  
+  
   
   if (numMarches)
   {
@@ -478,7 +582,10 @@ Fl_Image_BrowserV::add(
   if (img || (!stat(filename, &fileinfo) && fileinfo.st_size))
   {
     _itemList->insert_item(filename, img); // add to end of list
-    update_scrollbar();
+    
+    recalc();
+    //update_scrollbar();
+    
     set_changed();
     do_callback();
     clear_changed();
@@ -665,3 +772,79 @@ Fl_Image_BrowserV::make_visible(int i)	// I - Index
   damage(FL_DAMAGE_SCROLL);
 }
 
+// Stack/grid mode has been changed. Or number of lines has been changed.
+// Recalculate each thumb's
+// dimensions. This sets the scrollbar max extent.
+//
+void Fl_Image_BrowserV::recalc()
+{
+    _maxExtent = 0;
+    
+    int ts = thumbSize();
+
+    for (int i = 0; i < _itemList->count(); i++)
+    {
+        ItemList::ITEM *tem = _itemList->get(i);
+        if (!tem || !tem->thumbnail)
+            continue; 
+
+        int xoff = i % _numLines * ts; // vertical
+        
+        if (_stackMode)
+        {
+            int tW = ts;
+            int tH = tW * tem->thumbnail->h() / tem->thumbnail->w();
+                    
+            tem->_x = xoff;
+            tem->_w = tW;
+            tem->_h = tH;
+            tem->_y = 0;
+
+            if (i >= _numLines)
+            {
+                ItemList::ITEM *temAbove = _itemList->get(i-_numLines);
+                tem->_y = temAbove->_y + temAbove->_h;
+            }
+        }
+        else
+        {
+            // Each thumb is the same size
+            int row = i / _numLines;
+            
+            int yoff = row * ts;
+            int xoff = i % _numLines * ts;
+            
+            tem->_x = xoff;
+            tem->_y = yoff;
+            tem->_w = ts;
+            tem->_h = ts;
+        }
+        
+        printf("%d: %d\n", _stackMode, tem->_y + tem->_h);
+        int newval = tem->_y + tem->_h;
+        // In stack mode, the "last" thumb might not be the tallest
+        _maxExtent = newval > _maxExtent ? newval : _maxExtent;
+    }
+    
+    printf("-%d: %d-\n", _stackMode, _maxExtent);
+    update_scrollbar();
+}
+
+void Fl_Image_BrowserV::numLines(int val) 
+{ 
+    if (_numLines == val) 
+        return; 
+    _numLines = val; 
+    recalc(); 
+    redraw();
+    //resize(x(),y(),w(),h()); 
+}
+
+void Fl_Image_BrowserV::setStackMode(bool val) 
+{ 
+    if (_stackMode == val) 
+        return; 
+    _stackMode = val; 
+    recalc(); 
+    redraw(); 
+}
