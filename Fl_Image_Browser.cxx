@@ -337,8 +337,10 @@ Fl_Image_BrowserV::handle(int event)	// I - Event
                 selected_ = sel;
             }
 
-            damage(FL_DAMAGE_SCROLL);
             take_focus();
+            make_visible(sel);
+            do_callback();
+            //damage(FL_DAMAGE_SCROLL);
 
         }
         return (1);
@@ -750,9 +752,18 @@ void
 Fl_Image_BrowserV::make_visible(int i)	// I - Index
 {
 
-  if (_itemList->outOfRange(i))
-    return;
+  ItemList::ITEM *tem = _itemList->get(i);
+  if (!tem)
+      return;
 
+  // vertical version
+  int H = h();
+  int target = tem->_y + tem->_h / 2;  // vertical
+  // don't move scrollbar if thumb already fully visible
+  if (scrollbar_.value() > tem->_y || (scrollbar_.value() + H) < (tem->_y + tem->_h))
+    set_scrollbar(target - h() / 2);
+  
+#if 0  
   int column = i / _numLines;
   int X = column * thumbSize();
 
@@ -767,7 +778,7 @@ Fl_Image_BrowserV::make_visible(int i)	// I - Index
   // TODO works only when scrolling right, needs scroll left version?
   if (X + thumbSize() >= currScrollMax)
       set_scrollbar(X - w()/2);
-
+#endif
   damage(FL_DAMAGE_SCROLL);
 }
 
