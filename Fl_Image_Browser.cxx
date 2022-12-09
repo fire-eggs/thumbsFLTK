@@ -845,8 +845,11 @@ void Fl_Image_BrowserV::numLines(int val)
         return; 
     _numLines = val; 
     recalc(); 
-    redraw();
-    //resize(x(),y(),w(),h()); 
+    
+    // TODO not sure if this is correct: should scroll pos not change?
+    make_visible(selected()); // Insure visibility for the selected
+    
+    redraw(); // force full redraw (thumbsizes have changed)
 }
 
 void Fl_Image_BrowserV::setStackMode(bool val) 
