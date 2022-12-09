@@ -145,7 +145,7 @@ void Fl_Image_BrowserV::drawGrid(int X, int Y, int W, int H)
     if (bg != FL_WHITE) // TODO chosen background color?
     {
         fl_color(bg);
-        fl_rectf(X + xoff + 1, Y + yoff + 1, ts - 4, ts+4); // H - 4);
+        fl_rectf(X + xoff + 1, Y + yoff + 1, ts - 3, ts - 3);
     }
     
     //if (item->thumbnail->h() > item->thumbnail->w())
@@ -231,7 +231,7 @@ void Fl_Image_BrowserV::drawStack(int X, int Y, int W, int H)
         if (bg != FL_WHITE) // TODO chosen background color?
         {
             fl_color(bg);
-            fl_rectf(X + xoff, Y + yoff, ts + 2, tH + 2); // H - 4);
+            fl_rectf(X + xoff + 1, Y + yoff + 1, ts - 3, tH + 7);
         }
         
         auto tmpImage = item->thumbnail->copy(tW,tH);
