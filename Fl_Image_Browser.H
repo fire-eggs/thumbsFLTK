@@ -52,7 +52,8 @@ private:
     //return H / _numLines; 
     
     // TODO vertical version
-    int W = w() - Fl::box_dw(box()) - SBWIDTH;
+    //int W = w() - Fl::box_dw(box()) - SBWIDTH;
+    int W = w() - SBWIDTH;
     return W / _numLines;
   } 
   

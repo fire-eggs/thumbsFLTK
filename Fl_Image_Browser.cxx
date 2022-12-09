@@ -157,8 +157,7 @@ void Fl_Image_BrowserV::drawGrid(int X, int Y, int W, int H)
     
     auto tmpImage = item->thumbnail->copy(tW,tH);
         
-    // grid mode is centered+cropped: draw anti-proportional then take center(drawsize,drawsize)
-
+    // grid mode is centered+cropped: draw anti-proportional then take center(drawsize,drawsize)   
     tmpImage->draw(X + xoff + delta, Y+yoff+delta,
                 drawsize, drawsize, (tW - drawsize) / 2, (tH - drawsize) / 2);
     tmpImage->release();
@@ -313,13 +312,13 @@ Fl_Image_BrowserV::handle(int event)	// I - Event
         int X = Fl::event_x() - x(); // - Fl::box_dx(box());
         int Y = Fl::event_y() - y();
 
+        if (X >= w() - SBWIDTH)
+            break;
+        
         // thumb values don't take scroll position into account
         Y += scrollbar_.value(); // vertical
         int sel = _itemList->find(X, Y); // currently selected item
-        
-        if (X >= w() - SBWIDTH)
-            break;
-
+                
         pushed_ = sel; // TODO for drag?
 
         if (sel >= 0)
@@ -820,13 +819,12 @@ void Fl_Image_BrowserV::recalc()
             tem->_h = ts;
         }
         
-        printf("%d: %d\n", _stackMode, tem->_y + tem->_h);
         int newval = tem->_y + tem->_h;
         // In stack mode, the "last" thumb might not be the tallest
         _maxExtent = newval > _maxExtent ? newval : _maxExtent;
     }
     
-    printf("-%d: %d-\n", _stackMode, _maxExtent);
+//    printf("-%d: %d-\n", _stackMode, _maxExtent);
     update_scrollbar();
 }
 
