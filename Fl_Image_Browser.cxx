@@ -195,6 +195,8 @@ void Fl_Image_BrowserV::drawStack(int X, int Y, int W, int H)
     //  continue;
     if (yoff >= H)
       continue;
+    if (yoff + item->_h < 0)
+        continue;
 
     Fl_Color bg;
 
