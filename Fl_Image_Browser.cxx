@@ -573,6 +573,16 @@ Fl_Image_BrowserV::update_scrollbar()
 // 'Fl_Image_BrowserV::add()' - Add an image to the browser.
 //
 
+void Fl_Image_BrowserV::add_to_end(const char* filename)
+{
+  // TODO calling stat for each file very slow
+  // Only add non-empty or cached files!  
+  //struct stat	fileinfo;		// Information about file
+  //if ((!stat(filename, &fileinfo) && fileinfo.st_size))
+  _itemList->insert_item(filename, nullptr);
+}
+
+
 void
 Fl_Image_BrowserV::add(
     const char      *filename,		// I - File to add
@@ -683,7 +693,7 @@ Fl_Image_BrowserV::load(
           Fl::flush();
 	}
 
-	add(filename);
+	add_to_end(filename);
 
 #if 0 // KBR don't move scrollbar to end during insert    
     int W = w() - Fl::box_dw(box());
@@ -705,6 +715,7 @@ Fl_Image_BrowserV::load(
     window()->cursor(FL_CURSOR_DEFAULT);
     
     set_scrollbar(0);
+    recalc();
     
 //    int zoom = 1; // TODO more than one thumbnail row
 //    int tSize = (h() - SBWIDTH) / zoom;

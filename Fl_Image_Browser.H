@@ -70,6 +70,7 @@ public:
   ~Fl_Image_BrowserV();
 
   void		add(const char *filename, Fl_Shared_Image *img = 0);
+  void		add_to_end(const char *filename);
   void		clear();
   int		find(const char *filename);
   int		handle(int event);
