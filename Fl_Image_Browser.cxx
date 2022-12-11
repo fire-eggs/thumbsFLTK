@@ -100,7 +100,7 @@ void Fl_Image_BrowserV::drawGrid(int X, int Y, int W, int H)
   
   for (int i = 0; i < _itemList->count(); i ++)
   {
-    ItemList::ITEM *item = _itemList->get(i);
+    ItemList::ITEM *item = _itemList->getUnsafe(i);
 
     if (!item || !item->thumbnail)
       continue; // TODO label drawing, placeholder drawing
@@ -178,7 +178,7 @@ void Fl_Image_BrowserV::drawStack(int X, int Y, int W, int H)
   
   for (int i = 0; i < _itemList->count(); i ++)
   {
-    ItemList::ITEM *item = _itemList->get(i);
+    ItemList::ITEM *item = _itemList->getUnsafe(i);
 
     if (!item || !item->thumbnail)
       continue;
@@ -765,7 +765,7 @@ void
 Fl_Image_BrowserV::make_visible(int i)	// I - Index
 {
 
-  ItemList::ITEM *tem = _itemList->get(i);
+  ItemList::ITEM *tem = _itemList->getUnsafe(i);
   if (!tem)
       return;
 
@@ -807,7 +807,7 @@ void Fl_Image_BrowserV::recalc()
 
     for (int i = 0; i < _itemList->count(); i++)
     {
-        ItemList::ITEM *tem = _itemList->get(i);
+        ItemList::ITEM *tem = _itemList->getUnsafe(i);
         if (!tem || !tem->thumbnail)
             continue; 
 
@@ -825,7 +825,7 @@ void Fl_Image_BrowserV::recalc()
 
             if (i >= _numLines)
             {
-                ItemList::ITEM *temAbove = _itemList->get(i-_numLines);
+                ItemList::ITEM *temAbove = _itemList->getUnsafe(i-_numLines);
                 tem->_y = temAbove->_y + temAbove->_h;
             }
         }

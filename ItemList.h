@@ -51,6 +51,7 @@ public:
   int		selected(int i) { return outOfRange(i) ? 0 : items_[i]->selected; }
   
   ITEM *get(int i) { return outOfRange(i) ? nullptr : items_[i]; }
+  ITEM *getUnsafe(int i) { return items_[i]; }
   
   void clear();
   
