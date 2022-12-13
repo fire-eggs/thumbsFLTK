@@ -62,6 +62,8 @@ protected:
   void draw();
   void drawGrid(int, int, int, int);
   void drawStack(int, int, int, int);
+  void recalcGrid();
+  void recalcStack();
   void recalc();
   
 public:

@@ -639,6 +639,8 @@ Fl_Image_BrowserV::load(
 
   num_files = fl_filename_list(dirname, &files);
 
+  printf("L:#files:%d\n", num_files);
+  
   if (num_files > 0)
   {
     window()->cursor(FL_CURSOR_WAIT);
@@ -695,6 +697,9 @@ Fl_Image_BrowserV::load(
 
 	add_to_end(filename);
 
+    if (i % 100 == 0)
+        printf("%d\n", i);
+    
 #if 0 // KBR don't move scrollbar to end during insert    
     int W = w() - Fl::box_dw(box());
     int X = num_items_ * ITEMWIDTH - W;
@@ -795,13 +800,39 @@ Fl_Image_BrowserV::make_visible(int i)	// I - Index
   damage(FL_DAMAGE_SCROLL);
 }
 
-// Stack/grid mode has been changed. Or number of lines has been changed.
-// Recalculate each thumb's
-// dimensions. This sets the scrollbar max extent.
-//
-void Fl_Image_BrowserV::recalc()
+void Fl_Image_BrowserV::recalcGrid()
 {
-    _maxExtent = 0;
+    int ts = thumbSize();
+
+    int count = _itemList->count();
+    for (int i = 0; i < count; i++)
+    {
+        ItemList::ITEM *tem = _itemList->getUnsafe(i);
+        if (!tem || !tem->thumbnail)
+            continue; 
+
+        // Each thumb is the same size
+        int row = i / _numLines;
+        
+        int yoff = row * ts;
+        int xoff = i % _numLines * ts; // vertical
+        
+        tem->_x = xoff;
+        tem->_y = yoff;
+        tem->_w = ts;
+        tem->_h = ts;
+        
+        int newval = tem->_y + tem->_h;
+        
+        // If we skipped any items, the max extent might be unexpected
+        _maxExtent = newval > _maxExtent ? newval : _maxExtent;
+    }
+}
+
+void Fl_Image_BrowserV::recalcStack()
+{
+    int columnHigh[10]; // TODO max of 10 columns
+    for (int i=0; i < 10; i++) columnHigh[i] = 0;
     
     int ts = thumbSize();
 
@@ -811,42 +842,49 @@ void Fl_Image_BrowserV::recalc()
         if (!tem || !tem->thumbnail)
             continue; 
 
-        int xoff = i % _numLines * ts; // vertical
+        // Place the next thumb into the *shortest* column. 
+        // This prevents wildly different column heights at
+        // the end. "selection order" (e.g. via keyboard)
+        // may feel counterintuitive?
+        int column = i % _numLines; 
+        for (int j=0; j < _numLines; j++)
+            if (columnHigh[j] < columnHigh[column])
+                column = j;
+            
+        int xoff = column * ts;
         
-        if (_stackMode)
-        {
-            int tW = ts;
-            int tH = tW * tem->thumbnail->h() / tem->thumbnail->w();
-                    
-            tem->_x = xoff;
-            tem->_w = tW;
-            tem->_h = tH;
-            tem->_y = 0;
+        int tW = ts;
+        int tH = tW * tem->thumbnail->h() / tem->thumbnail->w();
+                
+        tem->_x = xoff;
+        tem->_w = tW;
+        tem->_h = tH;
+        tem->_y = columnHigh[column]; // 0;
 
-            if (i >= _numLines)
-            {
-                ItemList::ITEM *temAbove = _itemList->getUnsafe(i-_numLines);
-                tem->_y = temAbove->_y + temAbove->_h;
-            }
-        }
-        else
+/*        
+        // for consistent navigation feel
+        if (i >= _numLines)
         {
-            // Each thumb is the same size
-            int row = i / _numLines;
-            
-            int yoff = row * ts;
-            int xoff = i % _numLines * ts;
-            
-            tem->_x = xoff;
-            tem->_y = yoff;
-            tem->_w = ts;
-            tem->_h = ts;
+            ItemList::ITEM *temAbove = _itemList->getUnsafe(i-_numLines);
+            tem->_y = temAbove->_y + temAbove->_h;
         }
-        
+*/            
         int newval = tem->_y + tem->_h;
-        // In stack mode, the "last" thumb might not be the tallest
-        _maxExtent = newval > _maxExtent ? newval : _maxExtent;
+        columnHigh[column] = newval;
     }
+    
+    for (int i=0; i < _numLines; i++)
+        _maxExtent = columnHigh[i] > _maxExtent ? columnHigh[i] : _maxExtent;
+}
+
+
+// Stack/grid mode has been changed. Or number of lines has been changed.
+// Recalculate each thumb's dimensions. This sets the scrollbar max extent.
+//
+void Fl_Image_BrowserV::recalc()
+{
+    _maxExtent = 0;
+    _stackMode ? recalcStack() : recalcGrid();
     
 //    printf("-%d: %d-\n", _stackMode, _maxExtent);
     update_scrollbar();
