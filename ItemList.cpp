@@ -385,7 +385,8 @@ ItemList::ITEM::save_thumbnail(
 
   int W = thumbnail->w();
   int H = thumbnail->h();
-
+  int D = thumbnail->d();
+  
   // Save the thumbnail image...
   if ((thumbfile = fopen(thumbname, "wb")) != NULL)
   {
@@ -401,6 +402,9 @@ ItemList::ITEM::save_thumbnail(
         int b = *rgb++ >> 6;
 
         putc((((r << 3) | g) << 2) | b, thumbfile);
+        
+        if (D == 4)
+            rgb++;
       }
 
     fclose(thumbfile);
