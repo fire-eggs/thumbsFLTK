@@ -858,9 +858,11 @@ void Fl_Image_BrowserV::numLines(int val)
         return; 
     _numLines = val; 
     recalc(); 
-    
-    // TODO not sure if this is correct: should scroll pos not change?
-    make_visible(selected()); // Insure visibility for the selected
+
+    int sel = selected();
+    if (sel >= 0)
+        // TODO not sure if this is correct: should scroll pos not change?
+        make_visible(sel); // Insure visibility for the selected
     
     redraw(); // force full redraw (thumbsizes have changed)
 }
